@@ -47,6 +47,13 @@ typings/
 # TypeScript cache
 *.tsbuildinfo
 
+# TypeScript
+*.d.ts
+*.js
+
+# CDK
+cdk.out
+
 # Optional npm cache directory
 .npm
 

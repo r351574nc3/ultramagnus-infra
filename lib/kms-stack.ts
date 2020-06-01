@@ -4,8 +4,8 @@ import cdk = require('@aws-cdk/core');
 import { Effect } from '@aws-cdk/aws-iam';
 
 export class KmsStack extends cdk.Stack {
-    keyId: string;
-    account_id: string;
+    private key: kms.IKey;
+    private account_id: string;
 
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
@@ -93,16 +93,18 @@ export class KmsStack extends cdk.Stack {
             ]
         });
 
-        const key = new kms.Key(this, "botopolis-key", {
+        this.key = new kms.Key(this, "botopolis-key", {
             "alias": "slack-secrets-key-cdk",
             "description": "Secrets for slack including oauth bot token, client id, client secret, and signing secret",
             "enabled": true, 
             "enableKeyRotation": true,
             "policy": key_policy,
         });
-        // this.keyId = "5433c839-4a75-435f-a4b4-8db2c4ff7f91";
-        this.keyId = key.keyId;
 
-        new cdk.CfnOutput(this, 'KMS Slack Key ARN', { value:  key.keyArn });
+        new cdk.CfnOutput(this, 'KMS Slack Key ARN', { value:  this.key.keyArn });
+    }
+
+    public getKey(): kms.IKey {
+        return this.key;
     }
 }
