@@ -1,23 +1,41 @@
 #!/usr/bin/env node
-import * as cdk from '@aws-cdk/core';
+import { App } from '@aws-cdk/core';
 import { AppStack } from '../lib/app-stack';
 import { KmsStack } from '../lib/kms-stack';
 import { SecretsStack } from '../lib/secrets-stack';
+import * as kms from '@aws-cdk/aws-kms';
+import * as secrets from '@aws-cdk/aws-secretsmanager';
+import * as config from "./config"
+import { EcsGolangStack } from '../lib/ecs-go-mvp-stack';
 
-const app = new cdk.App();
-const kms_stack = new KmsStack(app, 'ultramagnus-kms-key-policy');
-const secrets_stack = new SecretsStack(
-    app, 
-    "ultramagnus-secrets",
-    kms_stack.getKey(),
-    );
+class BotApp extends App {
+	constructor() {
+		super();
 
-/*
-const app_stack = new AppStack(
-    app,
-    'ultramagnus-aws-fargate-autoscaling', 
-    {
-        "keyId": kms_stack.keyId,
+        const kms_stack = new KmsStack(
+            this,
+            'ultramagnus-kms-key-policy',
+			{
+				env: config.environment
+            },
+        );
+
+        const secrets_stack = new SecretsStack(
+            this, 
+            "ultramagnus-secrets",
+            kms_stack.getKey(),
+			{
+				env: config.environment
+            },
+        );
+
+        const app_stack = new AppStack(
+            this,
+            'ultramagnus-aws-fargate-autoscaling',
+            {
+				env: config.environment
+			},
+        );
     }
-);
-*/
+}
+new BotApp().synth()
